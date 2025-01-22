@@ -25,7 +25,8 @@ jobs:
       - name: Build
         run: npm run build
 
-  test:
+  lint:
+    needs: build
     runs-on: ubuntu_latest
     steps:
       - name: Get code
@@ -43,5 +44,23 @@ jobs:
         run: npm ci
       - name: Lint code
         run: npm run lint
+
+  test:
+    needs: build
+    runs-on: ubuntu_latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Install NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        run: npm ci
       - name: Test code
         run: npm run test
